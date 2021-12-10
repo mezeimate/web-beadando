@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags">
+<ui:composition template="layout.xhtml">
+	<ui:define name="content">
+		<h:form id="orderFrom">
+			<p:panel header="Order Info" id="orderInf">
+				<h:panelGrid columns="2">
+					<p:outputLabel for="name" value="Order Name: " />
+					<p:inputText id="name" size="40"
+						value="#{orderController.orderUiTO.orderName}" required="true"
+						requiredMessage="Please enter order name " />
+					<p:outputLabel for="orderpassword" value="Password: " />
+					<p:password id="orderpassword" size="40"
+						value="#{orderController.orderUiTO.password}" />
+					<p:outputLabel for="orderemail" value="E-Mail : " />
+					<p:inputText id="orderemail"
+						value="#{orderController.orderUiTO.emailId}" size="40"
+						required="true" label="Email Address">
+
+						<f:validator validatorId="customEmailValidator" />
+					</p:inputText>
+					<p:outputLabel for="orderaddres" value="Address " />
+					<p:inputTextarea id="orderaddres" rows="4" cols="50"
+						value="#{orderController.orderUiTO.address1}" />
+					<p:outputLabel for="orderFood" value="Food " />
+
+					<p:selectOneMenu id="orderFood"
+						value="#{orderController.orderUiTO.foodUITO}"
+						style="width:150px" converter="#{foodConverter}">
+						<f:selectItems value="#{orderController.foodUiToList}"
+							var="foodUITO" itemLabel="#{foodUITO.foodName}"
+							itemValue="#{foodUITO}" />
+
+					</p:selectOneMenu>
+					<h:commandButton value="#{orderController.actionLabel}"
+						action="#{orderController.doSaveInfoOrder}">
+						<f:ajax execute="orderForm" render="orderlist orderInf" />
+					</h:commandButton>
+				</h:panelGrid>
+			</p:panel>
+			<p:panel header="Food List" id="foodlist">
+				<p:dataTable id="table" var="ord"
+					value="#{orderController.orderUiToList}">
+					<p:column>
+						<f:facet name="header"># Order Id</f:facet>
+						<h:outputText value="#{ord.orderId}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">Name</f:facet>
+						<h:outputText value="#{ord.orderName}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">Address </f:facet>
+						<h:outputText value="#{ord.address1}">
+						</h:outputText>
+					</p:column>
+					<p:column>
+						<f:facet name="header">Email </f:facet>
+						<h:outputText value="#{ord.emailId}">
+						</h:outputText>
+					</p:column>
+					<p:column>
+						<f:facet name="header">Food </f:facet>
+						<h:outputText value="#{ord.foodUITO.foodName}" />
+					</p:column>
+
+					<p:column id="action">
+						<f:facet name="header">Action</f:facet>
+						<h:commandLink value="Edit"
+									   action="#{orderController.editOrder(ord)}">
+							<f:ajax execute="action" render="orderFrom" />
+						</h:commandLink> /
+						<sec:authorize access="hasRole('ROLE_ADMIN')">
+							<h:commandLink value="Delete"
+										   action="#{orderController.deleteOrder(ord)}">
+								<f:ajax execute="action" render="table" />
+							</h:commandLink>
+						</sec:authorize>
+					</p:column>
+
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>
